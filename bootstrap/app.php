@@ -7,12 +7,12 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Session\TokenMismatchException;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\UnauthorizedException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Throwable;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -25,17 +25,25 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->render(function (Throwable $exception, \Illuminate\Http\Request $request) {
+        $exceptions->render(function (\Throwable $exception, \Illuminate\Http\Request $request) {
 
             if ($request->is('api/*') || $request->wantsJson()) {
 
                 if ($exception instanceof ValidationException) {
+                    $errors = $exception->errors();
+
+                    $allErrors = [];
+
+                    foreach ($errors as $key => $error) {
+                        $allErrors[$key] = $error[0];
+                    }
+
                     return response()->json([
                         'status_code' => 422,
                         'message'     => 'Invalid data',
                         'data'        => null,
-                        'errors'      => Arr::flatten($exception->errors()),
-                    ]);
+                        'errors'      => $allErrors,
+                    ], 422);
 
                 } elseif ($exception instanceof ModelNotFoundException) {
 
@@ -44,7 +52,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message'     => $exception->getMessage(),
                         'data'        => null,
                         'errors'      => [],
-                    ]);
+                    ], 404);
                 } elseif (
                     $exception instanceof AuthorizationException
                     || $exception instanceof UnauthorizedException
@@ -55,7 +63,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message'     => $exception->getMessage(),
                         'data'        => null,
                         'errors'      => [],
-                    ]);
+                    ], 403);
 
                 } elseif ($exception instanceof AuthenticationException) {
 
@@ -66,21 +74,36 @@ return Application::configure(basePath: dirname(__DIR__))
                         'errors'      => [],
                     ]);
 
+                } elseif ($exception instanceof UnauthorizedHttpException) {
+                    return response()->json([
+                        'status_code' => 401,
+                        'message'     => 'Token has expired or is invalid.',
+                        'data'        => null,
+                        'errors'      => [],
+                    ], 401);
                 } elseif ($exception instanceof NotFoundHttpException) {
                     return response()->json([
                         'status_code' => 404,
                         'message'     => $exception->getMessage(),
                         'data'        => null,
                         'errors'      => [],
-                    ]);
+                    ], 404);
+                } elseif ($exception instanceof RouteNotFoundException) {
+
+                    return response()->json([
+                        'status_code' => 401,
+                        'message'     => 'Unauthorized',
+                        'data'        => null,
+                        'errors'      => 'Authentication required. Please provide a valid token.',
+                    ], 401);
                 }
 
                 return response()->json([
                     'status_code' => 500,
                     'message'     => $exception->getMessage(),
-                    'data'        => null,
+                    'data'        => get_class($exception),
                     'errors'      => [],
-                ]);
+                ], 500);
             }
 
             if ($exception->getPrevious() instanceof TokenMismatchException) {

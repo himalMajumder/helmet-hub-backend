@@ -17,7 +17,7 @@ trait ApiResponse
      */
     public function successResponse(array $data, string $message = 'Success'): JsonResponse
     {
-        return $this->jsonResponse(200, $message, $data);
+        return $this->jsonResponse(JsonResponse::HTTP_OK, $message, $data);
     }
 
     /**
@@ -36,7 +36,7 @@ trait ApiResponse
             'message'     => $message,
             'data'        => !empty($data) ? $data : null,
             'errors'      => $errors,
-        ]);
+        ], $statusCode);
     }
 
     /**
@@ -64,7 +64,7 @@ trait ApiResponse
      */
     public function validationFailedResponse(array $errors, string $message = 'Invalid data'): JsonResponse
     {
-        return $this->jsonResponse(422, $message, [], Arr::flatten($errors));
+        return $this->jsonResponse(JsonResponse::HTTP_UNPROCESSABLE_ENTITY, $message, [], Arr::flatten($errors));
     }
 
     /**
@@ -75,7 +75,7 @@ trait ApiResponse
      */
     public function unauthenticatedResponse(string $message = 'Unauthenticated'): JsonResponse
     {
-        return $this->jsonResponse(401, $message, []);
+        return $this->jsonResponse(JsonResponse::HTTP_UNAUTHORIZED, $message, []);
     }
 
     /**
@@ -86,7 +86,7 @@ trait ApiResponse
      */
     public function forbiddenResponse(string $message = 'This action is unauthorized'): JsonResponse
     {
-        return $this->jsonResponse(403, $message, []);
+        return $this->jsonResponse(JsonResponse::HTTP_FORBIDDEN, $message, []);
     }
 
     /**
@@ -97,7 +97,7 @@ trait ApiResponse
      */
     public function notFoundResponse(string $message = 'Not found'): JsonResponse
     {
-        return $this->jsonResponse(404, $message, []);
+        return $this->jsonResponse(JsonResponse::HTTP_NOT_FOUND, $message, []);
     }
 
     /**
@@ -108,7 +108,7 @@ trait ApiResponse
      */
     public function methodNotAllowedResponse(string $message = 'Method not allow'): JsonResponse
     {
-        return $this->jsonResponse(405, $message, []);
+        return $this->jsonResponse(JsonResponse::HTTP_METHOD_NOT_ALLOWED, $message, []);
     }
 
     /**
@@ -119,18 +119,6 @@ trait ApiResponse
      */
     public function somethingWentWrongResponse(string $message = 'Something went wrong'): JsonResponse
     {
-        return $this->jsonResponse(500, $message, []);
-    }
-
-    /**
-     * Response for custom http response
-     * 480 - User is not activated by admin
-     *
-     * @param  string  $message
-     * @return JsonResponse
-     */
-    public function userNotActivatedResponse(string $message = 'User not activated yet'): JsonResponse
-    {
-        return $this->jsonResponse(480, $message, []);
+        return $this->jsonResponse(JsonResponse::HTTP_INTERNAL_SERVER_ERROR, $message, []);
     }
 }

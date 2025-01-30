@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\Auth\AuthenticationController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Validator;
-use App\Http\Requests\LoginRequest;
+use App\Http\Controllers\Api\DashboardController;
 
 Route::get('/', function () {
     return response()->json([
@@ -11,9 +10,10 @@ Route::get('/', function () {
     ]);
 });
 
-Route::post('/login', function (LoginRequest $request) {
-    return response()->json([
-        'message'    => 'Hello World',
-        'validation' =>1,
-    ]);
+Route::post('/login', [AuthenticationController::class, 'login']);
+
+Route::group(['middleware' => 'auth:sanctum'], function () {
+    Route::post('/logout', [AuthenticationController::class, 'logout']);
+    Route::get('/user', [AuthenticationController::class, 'user']);
+    Route::get('/dashboard', [DashboardController::class, 'index']);
 });
