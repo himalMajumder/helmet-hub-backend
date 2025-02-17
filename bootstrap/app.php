@@ -3,13 +3,16 @@
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Response;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Validation\UnauthorizedException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
@@ -43,7 +46,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message'     => 'Invalid data',
                         'data'        => null,
                         'errors'      => $allErrors,
-                    ], 422);
+                    ], Response::HTTP_UNPROCESSABLE_ENTITY);
 
                 } elseif ($exception instanceof ModelNotFoundException) {
 
@@ -52,7 +55,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message'     => $exception->getMessage(),
                         'data'        => null,
                         'errors'      => [],
-                    ], 404);
+                    ], Response::HTTP_NOT_FOUND);
                 } elseif (
                     $exception instanceof AuthorizationException
                     || $exception instanceof UnauthorizedException
@@ -63,7 +66,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message'     => $exception->getMessage(),
                         'data'        => null,
                         'errors'      => [],
-                    ], 403);
+                    ], Response::HTTP_FORBIDDEN);
 
                 } elseif ($exception instanceof AuthenticationException) {
 
@@ -72,7 +75,7 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message'     => $exception->getMessage(),
                         'data'        => null,
                         'errors'      => [],
-                    ]);
+                    ], Response::HTTP_UNAUTHORIZED);
 
                 } elseif ($exception instanceof UnauthorizedHttpException) {
                     return response()->json([
@@ -80,22 +83,53 @@ return Application::configure(basePath: dirname(__DIR__))
                         'message'     => 'Token has expired or is invalid.',
                         'data'        => null,
                         'errors'      => [],
-                    ], 401);
+                    ], Response::HTTP_UNAUTHORIZED);
                 } elseif ($exception instanceof NotFoundHttpException) {
                     return response()->json([
                         'status_code' => 404,
                         'message'     => $exception->getMessage(),
                         'data'        => null,
                         'errors'      => [],
-                    ], 404);
+                    ], Response::HTTP_NOT_FOUND);
                 } elseif ($exception instanceof RouteNotFoundException) {
-
                     return response()->json([
                         'status_code' => 401,
                         'message'     => 'Unauthorized',
                         'data'        => null,
                         'errors'      => 'Authentication required. Please provide a valid token.',
-                    ], 401);
+                    ], Response::HTTP_UNAUTHORIZED);
+                } elseif ($exception instanceof MethodNotAllowedHttpException) {
+                    return response()->json([
+                        'status_code' => 401,
+                        'message'     => 'HTTP method not allowed',
+                        'data'        => null,
+                        'errors'      => 'MethodNotAllowed.',
+                    ], Response::HTTP_METHOD_NOT_ALLOWED);
+                } elseif ($exception instanceof QueryException) {
+                    $errorCode = $exception->getCode();
+
+                    if ($errorCode == '42S22') {
+                        return response()->json([
+                            'status_code' => 500,
+                            'error'       => 'Database Error',
+                            'data'        => null,
+                            'message'     => 'A required column is missing in the database.',
+                        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                    } elseif ($errorCode == '23000') {
+                        return response()->json([
+                            'status_code' => 500,
+                            'error'       => 'Database Error',
+                            'data'        => null,
+                            'message'     => 'Duplicate entry or constraint violation.',
+                        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                    }
+
+                    return response()->json([
+                        'status_code' => 500,
+                        'error'       => 'Database Error',
+                        'data'        => null,
+                        'message'     => 'A database error occurred. Please contact support.',
+                    ], Response::HTTP_INTERNAL_SERVER_ERROR);
                 }
 
                 return response()->json([
@@ -103,7 +137,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'message'     => $exception->getMessage(),
                     'data'        => get_class($exception),
                     'errors'      => [],
-                ], 500);
+                ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
 
             if ($exception->getPrevious() instanceof TokenMismatchException) {

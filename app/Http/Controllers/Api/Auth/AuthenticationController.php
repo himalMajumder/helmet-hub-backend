@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
@@ -35,7 +36,7 @@ class AuthenticationController extends Controller
         }
 
         $data = [
-            'token' => $user->createToken('my-app-token')->plainTextToken,
+            'token' => $user->createToken('my-app-token', ['*'], now()->addHours(2))->plainTextToken,
             'user'  => $user,
         ];
 
@@ -63,9 +64,10 @@ class AuthenticationController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function user(Request $request): JsonResponse
+    public function user(Request $request)
     {
-        $user = $request->user()->toArray();
+        $user = $request->user();
+        $user = resource_to_array(new UserResource($user));
 
         return $this->successResponse($user);
     }
