@@ -2,14 +2,14 @@
 
 namespace App\Services;
 
-use App\Models\Customer;
+use App\Models\BikeModel;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class CustomerService
+class BikeModelService
 {
     /**
-     * CustomerService constructor
+     * BikeModelService constructor
      *
      */
     public function __construct(
@@ -17,18 +17,18 @@ class CustomerService
     }
 
     /**
-     * All Customer
+     * All Bike Model
      *
      * @param  array  $attributes
      * @return Collection
      */
     public function all(array $attributes = [])
     {
-        return Customer::get();
+        return BikeModel::get();
     }
 
     /**
-     * Create Customer
+     * Create Bike Model
      *
      * @param  array  $attributes
      * @throws Exception
@@ -38,11 +38,11 @@ class CustomerService
         try {
             DB::beginTransaction();
 
-            $customer = Customer::create($attributes);
+            $bikeModel = BikeModel::create($attributes);
 
             DB::commit();
 
-            return $customer;
+            return $bikeModel;
         } catch (Exception $exception) {
             DB::rollBack();
 
@@ -52,7 +52,7 @@ class CustomerService
     }
 
     /**
-     * Delete Customer
+     * Delete Bike Model
      *
      * @param  array  $attributes
      * @return bool
@@ -64,7 +64,7 @@ class CustomerService
         try {
             DB::beginTransaction();
 
-            Customer::where('uuid', $uuid)->delete();
+            BikeModel::where('uuid', $uuid)->delete();
 
             DB::commit();
 

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class Customer extends Model
+class BikeModel extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -14,13 +14,7 @@ class Customer extends Model
      */
     protected $fillable = [
         'name',
-        'phone',
-        'email',
-        'address',
-        'product',
-        'model',
-        'serial_number',
-        'memo_number',
+        'detail',
     ];
 
     /**
@@ -31,15 +25,9 @@ class Customer extends Model
     protected function casts(): array
     {
         return [
-            'uuid'          => 'string',
-            'name'          => 'string',
-            'phone'         => 'string',
-            'email'         => 'string',
-            'address'       => 'string',
-            'product'       => 'string',
-            'model'         => 'string',
-            'serial_number' => 'string',
-            'memo_number'   => 'string',
+            'uuid'   => 'string',
+            'name'   => 'string',
+            'detail' => 'string',
         ];
     }
 
