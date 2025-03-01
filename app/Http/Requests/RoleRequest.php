@@ -3,15 +3,17 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Role;
 
-class BikeModelRequest extends FormRequest
+class RoleRequest extends FormRequest
 {
     /**
-     * Bike Model uuid
+     * Role uuid
      *
      * @var string|null
      */
-    private ?string $bikeModelUuid;
+    private ?string $roleId;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -28,9 +30,16 @@ class BikeModelRequest extends FormRequest
      */
     public function rules(): array
     {
+        $uniqueRule = Rule::unique(Role::class);
+
+        if ($this->roleId) {
+            $uniqueRule->ignore($this->roleId);
+        }
+
         return [
-            'name'   => ['required'],
-            'detail' => ['nullable'],
+            'name'          => ['required', 'min:3', $uniqueRule],
+            'permissions'   => ['nullable', 'array'],
+            'permissions.*' => ['required', 'integer'],
         ];
     }
 
@@ -41,6 +50,7 @@ class BikeModelRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        $this->bikeModelUuid = $this->route('bike_model');
+        $this->roleId = $this->route('role');
     }
+
 }

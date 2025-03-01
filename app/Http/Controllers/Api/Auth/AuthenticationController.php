@@ -37,7 +37,8 @@ class AuthenticationController extends Controller
 
         $data = [
             'token' => $user->createToken('my-app-token', ['*'], now()->addHours(2))->plainTextToken,
-            'user'  => $user,
+            'user'  =>  resource_to_array(new UserResource($user))
+
         ];
 
         return $this->successResponse($data);

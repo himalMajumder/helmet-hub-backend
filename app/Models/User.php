@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -23,6 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'status',
     ];
 
     /**
@@ -43,8 +45,31 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
+            'uuid'              => 'string',
+            'name'              => 'string',
+            'email'             => 'string',
             'email_verified_at' => 'datetime',
             'password'          => 'hashed',
+            'status'            => 'string',
         ];
     }
+
+    /**
+     * Boot the model.
+     *
+     * @return void
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+
+            if (empty($model->uuid)) {
+                $model->uuid = Str::uuid()->toString();
+            }
+
+        });
+    }
+
 }

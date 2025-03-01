@@ -2,16 +2,18 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class BikeModelRequest extends FormRequest
+class UserRequest extends FormRequest
 {
     /**
-     * Bike Model uuid
+     * User uuid
      *
      * @var string|null
      */
-    private ?string $bikeModelUuid;
+    private ?string $userUuid;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -28,9 +30,18 @@ class BikeModelRequest extends FormRequest
      */
     public function rules(): array
     {
+        $uniqueRule    = Rule::unique(User::class);
+        $password_rule = ['required', 'min:6'];
+
+        if ($this->userUuid) {
+            $uniqueRule->ignore($this->userUuid, 'uuid');
+            $password_rule = ['nullable', 'min:6'];
+        }
+
         return [
-            'name'   => ['required'],
-            'detail' => ['nullable'],
+            'name'     => ['required', 'min:3'],
+            'email'    => ['required', 'email', $uniqueRule],
+            'password' => $password_rule,
         ];
     }
 
@@ -41,6 +52,7 @@ class BikeModelRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
-        $this->bikeModelUuid = $this->route('bike_model');
+        $this->userUuid = $this->route('user');
     }
+
 }

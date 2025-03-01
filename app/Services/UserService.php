@@ -3,14 +3,14 @@
 namespace App\Services;
 
 use App\Enums\CommonStatusEnum;
-use App\Models\BikeModel;
+use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class BikeModelService
+class UserService
 {
     /**
-     * BikeModelService constructor
+     * UserService constructor
      *
      */
     public function __construct(
@@ -18,15 +18,14 @@ class BikeModelService
     }
 
     /**
-     * All Bike Model
+     * All User
      *
      * @param  array  $attributes
      * @return Collection
      */
     public function all(array $attributes = [], $limit = null)
     {
-        return BikeModel::where(function ($query) use ($attributes) {
-
+        return User::where(function ($query) use ($attributes) {
             if (isset($attributes['search'])) {
                 $query->where('name', 'like', '%' . $attributes['search'] . '%');
             }
@@ -39,29 +38,29 @@ class BikeModelService
     }
 
     /**
-     * First Bike Model by int
+     * First User by int
      *
      * @param  int  $int
      * @return Collection
      */
     public function firstById(int $int)
     {
-        return BikeModel::where('id', $int)->first();
+        return User::where('id', $int)->first();
     }
 
     /**
-     * First Bike Model by uuid
+     * First User by uuid
      *
      * @param  string  $uuid
      * @return Collection
      */
     public function firstByUuid(string $uuid)
     {
-        return BikeModel::where('uuid', $uuid)->first();
+        return User::where('uuid', $uuid)->first();
     }
 
     /**
-     * Create Bike Model
+     * Create User
      *
      * @param  array  $attributes
      * @throws Exception
@@ -71,12 +70,13 @@ class BikeModelService
         try {
             DB::beginTransaction();
 
-            $attributes['status'] = CommonStatusEnum::ACTIVE->value;
-            $bikeModel            = BikeModel::create($attributes);
+            $attributes['status']   = CommonStatusEnum::ACTIVE->value;
+            $attributes['password'] = bcrypt($attributes['password']);
+            $user                   = User::create($attributes);
 
             DB::commit();
 
-            return $bikeModel;
+            return $user;
         } catch (Exception $exception) {
             DB::rollBack();
 
@@ -86,7 +86,7 @@ class BikeModelService
     }
 
     /**
-     * Update Bike Model
+     * Update User
      *
      * @param  array  $attributes
      * @param  string  $uuid
@@ -97,11 +97,17 @@ class BikeModelService
         try {
             DB::beginTransaction();
 
-            $bikeModel = BikeModel::where('uuid', $uuid)->update($attributes);
+            if ($attributes['password']) {
+                $attributes['password'] = bcrypt($attributes['password']);
+            } else {
+                unset($attributes['password']);
+            }
+
+            $user = User::where('uuid', $uuid)->update($attributes);
 
             DB::commit();
 
-            return $bikeModel;
+            return $user;
         } catch (Exception $exception) {
             DB::rollBack();
 
@@ -111,7 +117,7 @@ class BikeModelService
     }
 
     /**
-     * Delete Bike Model
+     * Delete User
      *
      * @param  array  $attributes
      * @return bool
@@ -123,7 +129,7 @@ class BikeModelService
         try {
             DB::beginTransaction();
 
-            BikeModel::where('uuid', $uuid)->delete();
+            User::where('uuid', $uuid)->delete();
 
             DB::commit();
 
@@ -137,7 +143,7 @@ class BikeModelService
     }
 
     /**
-     * Activate Bike Model
+     * Activate User
      *
      * @param  array  $attributes
      * @return bool
@@ -148,7 +154,7 @@ class BikeModelService
         try {
             DB::beginTransaction();
 
-            BikeModel::where('uuid', $uuid)->update([
+            User::where('uuid', $uuid)->update([
                 'status' => CommonStatusEnum::ACTIVE->value,
             ]);
 
@@ -164,7 +170,7 @@ class BikeModelService
     }
 
     /**
-     * Suspend Bike Model
+     * Suspend User
      *
      * @param  array  $attributes
      * @return bool
@@ -175,7 +181,7 @@ class BikeModelService
         try {
             DB::beginTransaction();
 
-            BikeModel::where('uuid', $uuid)->update([
+            User::where('uuid', $uuid)->update([
                 'status' => CommonStatusEnum::IN_ACTIVE->value,
             ]);
 

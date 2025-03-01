@@ -71,13 +71,13 @@ class BikeModelController extends Controller
     }
 
     /**
-     * Create a Bike Model
+     * Store a Bike Model
      *
      * @param BikeModelRequest $request
      * @throws AuthorizationException
      * @return JsonResponse
      */
-    public function create(BikeModelRequest $request): JsonResponse
+    public function store(BikeModelRequest $request): JsonResponse
     {
         $user                  = $request->user();
         $attributes            = $request->validated();
@@ -90,12 +90,12 @@ class BikeModelController extends Controller
     }
 
     /**
-     * Edit a Bike Model
+     * Show a Bike Model
      *
      * @param Request $request
      * @return JsonResponse
      */
-    public function edit(Request $request, string $uuid): JsonResponse
+    public function show(Request $request, string $uuid): JsonResponse
     {
         $user = $request->user();
 
