@@ -18,6 +18,7 @@ class BikeModelResource extends JsonResource
             'uuid'   => $this->uuid,
             'name'   => $this->name,
             'detail' => $this->detail,
+            'status' => $this->status,
         ];
     }
 }

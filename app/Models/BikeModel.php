@@ -15,6 +15,8 @@ class BikeModel extends Model
     protected $fillable = [
         'name',
         'detail',
+        'status',
+        'user_id',
     ];
 
     /**
@@ -25,9 +27,11 @@ class BikeModel extends Model
     protected function casts(): array
     {
         return [
-            'uuid'   => 'string',
-            'name'   => 'string',
-            'detail' => 'string',
+            'uuid'    => 'string',
+            'name'    => 'string',
+            'detail'  => 'string',
+            'status'  => 'string',
+            'user_id' => 'integer',
         ];
     }
 
