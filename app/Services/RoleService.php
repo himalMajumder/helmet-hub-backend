@@ -23,21 +23,19 @@ class RoleService
      * @param  array  $attributes
      * @return Collection
      */
-    public function all(array $attributes = [], $limit = null)
+    public function all(array $attributes = [], $with = null, $limit = null)
     {
-        return Role::where(function ($query) use ($attributes) {
-
-            if (isset($attributes['search'])) {
-                $query->where('name', 'like', '%' . $attributes['search'] . '%');
-            }
-
+        return Role::when($with, function ($query, $with) {
+            return $query->with($with);
         })
+            ->when(isset($attributes['search']), function ($query) use ($attributes) {
+                return $query->where('name', 'like', '%' . $attributes['search'] . '%');
+            })
             ->when($limit, function ($query, $limit) {
                 return $query->limit($limit);
             })
             ->get();
     }
-
 
     /**
      * All Role
@@ -96,7 +94,7 @@ class RoleService
 
             $role = Role::create([
                 'name'       => $attributes['name'],
-                'guard_name' => AuthGuardEnum::ADMIN->value,
+                'guard_name' => AuthGuardEnum::WEB->value,
             ]);
 
             if ($permissions) {
@@ -167,7 +165,6 @@ class RoleService
             if ($role) {
                 $role->syncPermissions([]);
             }
-
 
             $role->delete();
 

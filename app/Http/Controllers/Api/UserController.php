@@ -5,12 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
+use App\Models\User;
 use App\Services\UserService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use App\Enums\CommonStatusEnum;
-use App\Models\User;
 
 class UserController extends Controller
 {
@@ -40,7 +39,7 @@ class UserController extends Controller
             $attributes['search'] = $search;
         }
 
-        $users = $this->userService->all($attributes);
+        $users = $this->userService->allWithRoles($attributes);
         $data  = resource_to_array(UserResource::collection($users));
 
         return $this->successResponse($data, 'Users found successfully');
@@ -75,8 +74,9 @@ class UserController extends Controller
      */
     public function store(UserRequest $request): JsonResponse
     {
-        $attributes   = $request->validated();
-        $user         = $this->userService->create($attributes);
+        $attributes = $request->validated();
+        $user       = $this->userService->create($attributes);
+
         $userResource = resource_to_array(new UserResource($user));
 
         return $this->successResponse($userResource, 'User created successfully');
@@ -106,8 +106,7 @@ class UserController extends Controller
     {
         $attributes = $request->validated();
 
-
-         $this->userService->update($attributes, $uuid);
+        $this->userService->update($attributes, $uuid);
 
         $user = resource_to_array(new UserResource($this->userService->firstByUuid($uuid)));
 

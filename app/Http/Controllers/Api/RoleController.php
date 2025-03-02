@@ -38,10 +38,26 @@ class RoleController extends Controller
             $attributes['search'] = $search;
         }
 
-        $users = $this->roleService->all($attributes);
-        $data  = resource_to_array(RoleResource::collection($users));
+        $roles = $this->roleService->all($attributes);
+
+        $data  = resource_to_array(RoleResource::collection($roles));
 
         return $this->successResponse($data, 'Roles found successfully');
+    }
+
+     /**
+     * Search Role
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function rolesWithPermissions(Request $request): JsonResponse
+    {
+        $attributes = [];
+
+        $roles = resource_to_array(RoleResource::collection($this->roleService->all($attributes, 'permissions')));
+
+        return $this->successResponse($roles, 'Roles found successfully');
     }
 
     /**
@@ -59,9 +75,9 @@ class RoleController extends Controller
             $attributes['search'] = $search;
         }
 
-        $users = resource_to_array(RoleResource::collection($this->roleService->all($attributes)));
+        $roles = resource_to_array(RoleResource::collection($this->roleService->all($attributes)));
 
-        return $this->successResponse($users, 'Roles found successfully');
+        return $this->successResponse($roles, 'Roles found successfully');
     }
 
     /**

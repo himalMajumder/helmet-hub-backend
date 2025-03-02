@@ -14,10 +14,16 @@ class RoleResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
-            'id'          => $this->id,
-            'name'        => $this->name,
-            'permissions' => PermissionResource::collection($this->permissions),
+        $data = [
+            'id'   => $this->id,
+            'name' => $this->name,
         ];
+
+        if ($this->relationLoaded('permissions') && $this->permissions->isNotEmpty()) {
+            $data['permissions'] = PermissionResource::collection($this->permissions);
+        }
+
+        return $data;
     }
+
 }

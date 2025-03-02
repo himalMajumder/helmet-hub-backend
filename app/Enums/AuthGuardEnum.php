@@ -8,5 +8,6 @@ enum AuthGuardEnum: string {
     use EnumToArray;
 
     case ADMIN   = 'admin';
+    case WEB   = 'web';
     case SANCTUM = 'sanctum';
 }

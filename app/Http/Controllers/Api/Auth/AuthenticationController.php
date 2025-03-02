@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\UserService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,6 +16,15 @@ use Illuminate\Validation\ValidationException;
 class AuthenticationController extends Controller
 {
     use ApiResponse;
+
+    /**
+     * UserController constructor
+     *
+     * @param  UserService  $userService
+     */
+    public function __construct(protected UserService $userService)
+    {
+    }
 
     /**
      * Undocumented function
@@ -35,9 +45,11 @@ class AuthenticationController extends Controller
             ]);
         }
 
+        $user = $this->userService->firstWithRolesPermissionsById($user->id);
+
         $data = [
             'token' => $user->createToken('my-app-token', ['*'], now()->addHours(2))->plainTextToken,
-            'user'  =>  resource_to_array(new UserResource($user))
+            'user'  => resource_to_array(new UserResource($user)),
 
         ];
 
@@ -68,6 +80,7 @@ class AuthenticationController extends Controller
     public function user(Request $request)
     {
         $user = $request->user();
+        $user = $this->userService->firstWithRolesPermissionsById($user->id);
         $user = resource_to_array(new UserResource($user));
 
         return $this->successResponse($user);

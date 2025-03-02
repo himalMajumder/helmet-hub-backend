@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Role;
 
 class UserRequest extends FormRequest
 {
@@ -42,6 +43,8 @@ class UserRequest extends FormRequest
             'name'     => ['required', 'min:3'],
             'email'    => ['required', 'email', $uniqueRule],
             'password' => $password_rule,
+            'role'     => ['nullable', 'array'],
+            'role.*'   => ['integer', Rule::exists(Role::class, 'id')],
         ];
     }
 

@@ -2,12 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Enums\Permission\UserPermissionEnum;
 use App\Enums\AuthGuardEnum;
-use Spatie\Permission\Models\Permission;
 use App\Enums\Permission\RolePermissionEnum;
+use App\Enums\Permission\UserPermissionEnum;
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
 
 class PermissionSeeder extends Seeder
 {
@@ -16,7 +15,7 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        $guardName = AuthGuardEnum::ADMIN->value;
+        $guardName = AuthGuardEnum::WEB->value;
         $modules   = [
             [
                 'module'        => 'User',
@@ -33,12 +32,13 @@ class PermissionSeeder extends Seeder
         $permissions = [];
 
         foreach ($modules as $module) {
+
             foreach ($module['permissions'] as $permission) {
                 // ignore existing permission
                 $permissionExists = Permission::query()
-                                              ->where('guard_name', $guardName)
-                                              ->where('name', $permission)
-                                              ->exists();
+                    ->where('guard_name', $guardName)
+                    ->where('name', $permission)
+                    ->exists();
 
                 if (!$permissionExists) {
                     $permissions[] = [
@@ -48,12 +48,16 @@ class PermissionSeeder extends Seeder
                         'guard_name'    => $guardName,
                     ];
                 }
+
             }
+
         }
 
         if (!empty($permission)) {
             Permission::query()
-                      ->insert($permissions);
+                ->insert($permissions);
         }
+
     }
+
 }
