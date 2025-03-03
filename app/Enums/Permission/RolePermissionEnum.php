@@ -11,6 +11,4 @@ enum RolePermissionEnum: string {
     case CREATE     = 'Create Role';
     case EDIT       = 'Edit Role';
     case DELETE     = 'Delete Role';
-    case ACTIVATE   = 'Activate Role';
-    case DEACTIVATE = 'Deactivate Role';
 }

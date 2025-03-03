@@ -15,10 +15,11 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         $data = [
-            'uuid'   => $this->uuid,
-            'name'   => $this->name,
-            'email'  => $this->email,
-            'status' => $this->status,
+            'uuid'        => $this->uuid,
+            'name'        => $this->name,
+            'email'       => $this->email,
+            'status'      => $this->status,
+            'super_admin' => $this->super_admin,
         ];
 
         $permissions = $this->permissions->pluck('id')->toArray();
