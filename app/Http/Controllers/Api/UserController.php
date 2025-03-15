@@ -60,9 +60,10 @@ class UserController extends Controller
             $attributes['search'] = $search;
         }
 
-        $users = resource_to_array(UserResource::collection($this->userService->all($attributes)));
+        $users = $this->userService->allWithRoles($attributes);
+        $data  = resource_to_array(UserResource::collection($users));
 
-        return $this->successResponse($users, 'Users found successfully');
+        return $this->successResponse($data, 'Users found successfully');
     }
 
     /**

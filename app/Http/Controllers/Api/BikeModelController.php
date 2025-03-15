@@ -32,23 +32,19 @@ class BikeModelController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $user       = $request->user();
         $attributes = [];
-        $search = $request->get('search') ?? null;
-        if($search){
+        $search     = $request->get('search') ?? null;
+
+        if ($search) {
             $attributes['search'] = $search;
         }
 
-
-        $customer = $this->bikeModelService->all($attributes);
-
-        $data = [
-            'bikeModels' => BikeModelResource::collection($customer),
-        ];
+        $bikeModels = $this->bikeModelService->all($attributes);
+        $data       = resource_to_array(BikeModelResource::collection($bikeModels));
 
         return $this->successResponse($data, 'Bike Models found successfully');
     }
-
 
     /**
      * Search Bike Model
@@ -58,16 +54,18 @@ class BikeModelController extends Controller
      */
     public function search(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $user       = $request->user();
         $attributes = [];
-        $search = $request->get('search') ?? null;
-        if($search){
+        $search     = $request->get('search') ?? null;
+
+        if ($search) {
             $attributes['search'] = $search;
         }
 
-        $customer = resource_to_array(BikeModelResource::collection($this->bikeModelService->all($attributes)));
+        $bikeModels = $this->bikeModelService->all($attributes);
+        $data       = resource_to_array(BikeModelResource::collection($bikeModels));
 
-        return $this->successResponse($customer, 'Bike Models found successfully');
+        return $this->successResponse($data, 'Bike Models found successfully');
     }
 
     /**
