@@ -49,6 +49,5 @@ Route::prefix('v1')->group(function () {
         Route::put('/products/{product}/activate', [ProductController::class, 'activate']);
         Route::put('/products/{product}/suspend', [ProductController::class, 'suspended']);
         Route::apiResource('products', ProductController::class);
-
     });
 });
